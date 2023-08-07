@@ -13,3 +13,5 @@
 
 Hard rules: 
 No imports of openzeppelin tools, contract should be 100 % handwritten using MY imagination
+No oracles
+No proxy functions
