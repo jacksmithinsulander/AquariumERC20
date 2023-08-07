@@ -13,12 +13,17 @@ contract Aquaria {
 
     address constant zeroAddress = 0x000000000000000000000000000000000000dEaD;
 
+    struct FishHierarchy {
+        uint16 fish;
+        uint8 shoaling;
+    }
+
     struct AquariaInfo {
         string name;
         string symbol;
         uint8 decimals;
         uint24 totalSupply;
-        mapping(address => uint16) balanceOf;
+        mapping(address => FishHierarchy) balanceOf;
         mapping(address => uint24) allowance;
     }
 
@@ -29,7 +34,8 @@ contract Aquaria {
         aquaria.symbol = "FISH";
         aquaria.decimals = 7;
         aquaria.totalSupply = 1;
-        aquaria.balanceOf[msg.sender] = 1;
+        FishHierarchy memory fish = FishHierarchy(1, 0);
+        aquaria.balanceOf[msg.sender] = fish;
         aquaria.allowance[msg.sender] = 0;
     }
 
@@ -50,7 +56,7 @@ contract Aquaria {
     }
 
     function balanceOf(address _owner) public view returns (uint16) {
-        return aquaria.balanceOf[_owner];
+        return aquaria.balanceOf[_owner].fish;
     }
 
     function allowance(address _owner) public view returns (uint24 remaining) {
@@ -58,14 +64,14 @@ contract Aquaria {
     }
 
     function transfer(address _to, uint16 _value) public returns (bool success) {
-        require(_value <= aquaria.balanceOf[msg.sender], "Go fish dude, you are out of fish");
+        require(_value <= aquaria.balanceOf[msg.sender].fish, "Go fish dude, you are out of fish");
         require(_to != address(0), "Invalid recipient");
         uint16 feeAmount = (_value * 1) / 100;
         uint16 transferAmount = _value - feeAmount;
 
-        aquaria.balanceOf[msg.sender] -= _value;
-        aquaria.balanceOf[zeroAddress] += feeAmount;
-        aquaria.balanceOf[_to] += transferAmount;
+        aquaria.balanceOf[msg.sender].fish -= _value;
+        aquaria.balanceOf[zeroAddress].fish += feeAmount;
+        aquaria.balanceOf[_to].fish += transferAmount;
 
         emit Transfer(msg.sender, _to, _value);
         return true;
