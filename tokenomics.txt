@@ -1,0 +1,12 @@
+1. 100 fish = 1 shoaling (fish get burned)
+2. 1 shoaling = 1 daovote
+3. 100 shoalings = 1 baracuda (nft) (shoaling gets burned)
+4. Max supply = infinate
+5. Buytax = 0.5 %
+6. Selltax = 1 % 
+7. Tax goes towards dao treasury
+8. Maximum transactable fish amount = 5 % of circulating supply
+9. Minting = double the amount of fish is created, then half is lp paired with the token used to mint and LP is burned, other half gets sent to minter 
+10. Flashmint = Flashloan but instead it mints and burns, taking 1 % of the borrowed amount into the dao treasury
+11. Dao votes on what token and when to make more LP liquidity to burn with
+12. Staking, yieldfold between existing protocols to recieve true yield
