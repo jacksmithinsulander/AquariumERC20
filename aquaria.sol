@@ -25,32 +25,31 @@ contract Aquaria {
     struct SubToken {
         string symbol;
         uint56 totalSupply;
-        uint40 balanceOf;
-        uint40 allowance;
+        mapping(address => uint40) allowance;
     }
 
     struct AquariaInfo {
         string name;
-        string symbol;
         uint8 decimals;
-        uint56 totalSupply;
         mapping(address => FishHierarchy) balanceOf;
-        mapping(address => uint24) allowance;
+        SubToken fish;
+        SubToken shoaling;
+        //mapping(address => uint24) allowance;
     }
 
     AquariaInfo private aquaria;
 
     constructor() {
         aquaria.name = "Aquaria";
-        aquaria.symbol = "FISH";
+        aquaria.fish.symbol = "FISH";
         aquaria.decimals = 7;
-        aquaria.totalSupply = convertToDecimal(1);
+        aquaria.fish.totalSupply = convertToDecimal(1);
         FishHierarchy memory fish = FishHierarchy(
             uint40(convertToDecimal(1)),
             0
         );
         aquaria.balanceOf[msg.sender] = fish;
-        aquaria.allowance[msg.sender] = 0;
+        aquaria.fish.allowance[msg.sender] = 0;
     }
 
     function name() public view returns (string memory) {
@@ -58,7 +57,7 @@ contract Aquaria {
     }
 
     function symbol() public view returns (string memory) {
-        return aquaria.symbol;
+        return aquaria.fish.symbol;
     }
 
     function decimals() public view returns (uint8) {
@@ -66,15 +65,15 @@ contract Aquaria {
     }
 
     function totalSupply() public view returns (uint56) {
-        return aquaria.totalSupply;
+        return aquaria.fish.totalSupply;
     }
 
     function balanceOf(address _owner) public view returns (uint40) {
         return aquaria.balanceOf[_owner].fish;
     }
 
-    function allowance(address _owner) public view returns (uint24 remaining) {
-        return aquaria.allowance[_owner];
+    function allowance(address _owner) public view returns (uint40 remaining) {
+        return aquaria.fish.allowance[_owner];
     }
 
     function transferFrom(
@@ -84,7 +83,7 @@ contract Aquaria {
     ) public returns (bool success) {
         require(_from == msg.sender, "You don't control these fish, my guy");
         require(
-            _value <= aquaria.allowance[_from],
+            _value <= aquaria.fish.allowance[_from],
             "Illigal fish transaction, overrides allowance"
         );
         require(
@@ -116,7 +115,7 @@ contract Aquaria {
         returns (bool success)
     {
         require(_spender == msg.sender, "Wrong wallet, fat finger.");
-        aquaria.allowance[_spender] = _value;
+        aquaria.fish.allowance[_spender] = _value;
         emit Approval(msg.sender, _spender, _value);
         return true;
     }
