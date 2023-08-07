@@ -22,6 +22,13 @@ contract Aquaria {
         uint24 shoaling;
     }
 
+    struct SubToken {
+        string symbol;
+        uint56 totalSupply;
+        uint40 balanceOf;
+        uint40 allowance;
+    }
+
     struct AquariaInfo {
         string name;
         string symbol;
@@ -38,7 +45,10 @@ contract Aquaria {
         aquaria.symbol = "FISH";
         aquaria.decimals = 7;
         aquaria.totalSupply = convertToDecimal(1);
-        FishHierarchy memory fish = FishHierarchy(1, 0);
+        FishHierarchy memory fish = FishHierarchy(
+            uint40(convertToDecimal(1)),
+            0
+        );
         aquaria.balanceOf[msg.sender] = fish;
         aquaria.allowance[msg.sender] = 0;
     }
@@ -67,10 +77,20 @@ contract Aquaria {
         return aquaria.allowance[_owner];
     }
 
-    function transferFrom(address _from, address _to, uint16 _value) public returns (bool success) {
+    function transferFrom(
+        address _from,
+        address _to,
+        uint16 _value
+    ) public returns (bool success) {
         require(_from == msg.sender, "You don't control these fish, my guy");
-        require(_value <= aquaria.allowance[_from], "Illigal fish transaction, overrides allowance");
-        require(_value <= aquaria.balanceOf[_from].fish, "Go fish dude, you are out of fish");
+        require(
+            _value <= aquaria.allowance[_from],
+            "Illigal fish transaction, overrides allowance"
+        );
+        require(
+            _value <= aquaria.balanceOf[_from].fish,
+            "Go fish dude, you are out of fish"
+        );
         require(_to != address(0), "Invalid recipient");
         uint16 feeAmount = (_value * 1) / 100;
         uint16 transferAmount = _value - feeAmount;
@@ -83,19 +103,28 @@ contract Aquaria {
         return true;
     }
 
-    function transfer(address _to, uint16 _value) public returns (bool success) {
+    function transfer(address _to, uint16 _value)
+        public
+        returns (bool success)
+    {
         bool isSent = transferFrom(msg.sender, _to, _value);
         return isSent;
     }
 
-    function approve(address _spender, uint16 _value) public returns (bool success) {
+    function approve(address _spender, uint16 _value)
+        public
+        returns (bool success)
+    {
         require(_spender == msg.sender, "Wrong wallet, fat finger.");
         aquaria.allowance[_spender] = _value;
         emit Approval(msg.sender, _spender, _value);
         return true;
     }
 
-    //function mintTokens(address _minter, uint16 _value) public returns (bool success) {
-    //    return true;
-    //}
+    function mintTokens(address _minter, uint16 _value)
+        public
+        returns (bool success)
+    {
+        return true;
+    }
 }
