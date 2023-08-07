@@ -10,3 +10,6 @@
 10. Flashmint = Flashloan but instead it mints and burns, taking 1 % of the borrowed amount into the dao treasury
 11. Dao votes on what token and when to make more LP liquidity to burn with
 12. Staking, yieldfold between existing protocols to recieve true yield
+
+Hard rules: 
+No imports of openzeppelin tools, contract should be 100 % handwritten using MY imagination
