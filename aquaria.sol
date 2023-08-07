@@ -2,7 +2,11 @@
 pragma solidity 0.8.20;
 
 interface ERC20Token {
-    function transferFrom(address _from, address _to, uint256 _value) external returns (bool);
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _value
+    ) external returns (bool);
 }
 
 contract Aquaria {
@@ -133,7 +137,20 @@ contract Aquaria {
         return true;
     }
 
-    function flushToilet(address _shitcoin, uint256 _amount) external {
-        
+    function mergeFish(uint40 _value) public returns (bool success) {
+        require(_value % 100 == 0, "Wrong fish to shoaling ratio, noob");
+        require(
+            _value <= aquaria.fish.allowance[msg.sender],
+            "Illigal fish transaction, overrides allowance"
+        );
+        aquaria.fish.balanceOf[msg.sender] -= _value;
+        aquaria.fish.totalSupply -= _value;
+        aquaria.shoaling.balanceOf[msg.sender] += _value / 100;
+        aquaria.shoaling.totalSupply += _value / 100;
+        return true;
     }
+
+    //(function flushToilet(address _shitcoin, uint256 _amount) external {
+
+    //}
 }
