@@ -14,7 +14,7 @@ contract Aquaria {
     address constant zeroAddress = 0x000000000000000000000000000000000000dEaD;
 
     function convertToDecimal(uint56 amount) internal view returns (uint56) {
-        return uint56(amount * 1 ** aquaria.decimals);
+        return uint56(amount * 10**uint56(aquaria.decimals));
     }
 
     struct FishHierarchy {
@@ -37,7 +37,7 @@ contract Aquaria {
         aquaria.name = "Aquaria";
         aquaria.symbol = "FISH";
         aquaria.decimals = 7;
-        aquaria.totalSupply = 1;
+        aquaria.totalSupply = convertToDecimal(1);
         FishHierarchy memory fish = FishHierarchy(1, 0);
         aquaria.balanceOf[msg.sender] = fish;
         aquaria.allowance[msg.sender] = 0;
