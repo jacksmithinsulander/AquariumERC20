@@ -64,7 +64,7 @@ contract Aquaria {
     }
 
     function transferFrom(address _from, address _to, uint16 _value) public returns (bool success) {
-        require(_from == msg.sender);
+        require(_from == msg.sender, "You don't control these fish, my guy");
         require(_value <= aquaria.balanceOf[_from].fish, "Go fish dude, you are out of fish");
         require(_to != address(0), "Invalid recipient");
         uint16 feeAmount = (_value * 1) / 100;
@@ -81,5 +81,11 @@ contract Aquaria {
     function transfer(address _to, uint16 _value) public returns (bool success) {
         bool isSent = transferFrom(msg.sender, _to, _value);
         return isSent;
+    }
+
+    function approve(address _spender, uint16 _value) public returns (bool success) {
+        require(_spender == msg.sender, "Wrong wallet, fat finger.");
+        aquaria.allowance[_spender] = _value;
+        return true;
     }
 }
