@@ -17,24 +17,19 @@ contract Aquaria {
         return uint56(amount * 10**uint56(aquaria.decimals));
     }
 
-    struct FishHierarchy {
-        uint40 fish;
-        uint24 shoaling;
-    }
 
     struct SubToken {
         string symbol;
         uint56 totalSupply;
         mapping(address => uint40) allowance;
+        mapping(address => uint40) balanceOf;
     }
 
     struct AquariaInfo {
         string name;
         uint8 decimals;
-        mapping(address => FishHierarchy) balanceOf;
         SubToken fish;
         SubToken shoaling;
-        //mapping(address => uint24) allowance;
     }
 
     AquariaInfo private aquaria;
@@ -44,11 +39,7 @@ contract Aquaria {
         aquaria.fish.symbol = "FISH";
         aquaria.decimals = 7;
         aquaria.fish.totalSupply = convertToDecimal(1);
-        FishHierarchy memory fish = FishHierarchy(
-            uint40(convertToDecimal(1)),
-            0
-        );
-        aquaria.balanceOf[msg.sender] = fish;
+        aquaria.fish.balanceOf[msg.sender] = uint40(convertToDecimal(1));
         aquaria.fish.allowance[msg.sender] = 0;
     }
 
@@ -69,7 +60,7 @@ contract Aquaria {
     }
 
     function balanceOf(address _owner) public view returns (uint40) {
-        return aquaria.balanceOf[_owner].fish;
+        return aquaria.fish.balanceOf[_owner];
     }
 
     function allowance(address _owner) public view returns (uint40 remaining) {
@@ -87,16 +78,16 @@ contract Aquaria {
             "Illigal fish transaction, overrides allowance"
         );
         require(
-            _value <= aquaria.balanceOf[_from].fish,
+            _value <= aquaria.fish.balanceOf[_from],
             "Go fish dude, you are out of fish"
         );
         require(_to != address(0), "Invalid recipient");
         uint16 feeAmount = (_value * 1) / 100;
         uint16 transferAmount = _value - feeAmount;
 
-        aquaria.balanceOf[_from].fish -= _value;
-        aquaria.balanceOf[zeroAddress].fish += feeAmount;
-        aquaria.balanceOf[_to].fish += transferAmount;
+        aquaria.fish.balanceOf[_from] -= _value;
+        aquaria.fish.balanceOf[zeroAddress] += feeAmount;
+        aquaria.fish.balanceOf[_to] += transferAmount;
 
         emit Transfer(msg.sender, _to, _value);
         return true;
@@ -127,3 +118,4 @@ contract Aquaria {
         return true;
     }
 }
+
