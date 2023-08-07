@@ -1,3 +1,4 @@
+
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.20;
 
@@ -87,6 +88,7 @@ contract Aquaria {
     function approve(address _spender, uint16 _value) public returns (bool success) {
         require(_spender == msg.sender, "Wrong wallet, fat finger.");
         aquaria.allowance[_spender] = _value;
+        emit Approval(msg.sender, _spender, _value)
         return true;
     }
 }
