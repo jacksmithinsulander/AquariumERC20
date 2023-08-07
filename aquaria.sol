@@ -17,7 +17,6 @@ contract Aquaria {
         return uint56(amount * 10**uint56(aquaria.decimals));
     }
 
-
     struct SubToken {
         string symbol;
         uint56 totalSupply;
@@ -36,11 +35,12 @@ contract Aquaria {
 
     constructor() {
         aquaria.name = "Aquaria";
-        aquaria.fish.symbol = "FISH";
         aquaria.decimals = 7;
+        aquaria.fish.symbol = "FISH";
         aquaria.fish.totalSupply = convertToDecimal(1);
         aquaria.fish.balanceOf[msg.sender] = uint40(convertToDecimal(1));
         aquaria.fish.allowance[msg.sender] = 0;
+        aquaria.shoaling.symbol = "SHOALING";
     }
 
     function name() public view returns (string memory) {
@@ -115,6 +115,10 @@ contract Aquaria {
         public
         returns (bool success)
     {
+        require(_minter == msg.sender, "You're trying to breed fish into someone elses wallet, don't do that");
+        uint40 mintedAmount = _value * 2;
+        aquaria.fish.balanceOf[_minter] += mintedAmount;
+        aquaria.fish.totalSupply += mintedAmount;
         return true;
     }
 }
