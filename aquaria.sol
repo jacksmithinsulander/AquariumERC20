@@ -13,21 +13,25 @@ contract Aquaria {
 
     address constant zeroAddress = 0x000000000000000000000000000000000000dEaD;
 
+    function convertToDecimal(uint56 amount) internal view returns (uint56) {
+        return uint56(amount * 1 ** aquaria.decimals);
+    }
+
     struct FishHierarchy {
-        uint16 fish;
-        uint8 shoaling;
+        uint40 fish;
+        uint24 shoaling;
     }
 
     struct AquariaInfo {
         string name;
         string symbol;
         uint8 decimals;
-        uint24 totalSupply;
+        uint56 totalSupply;
         mapping(address => FishHierarchy) balanceOf;
         mapping(address => uint24) allowance;
     }
 
-    AquariaInfo aquaria;
+    AquariaInfo private aquaria;
 
     constructor() {
         aquaria.name = "Aquaria";
@@ -51,11 +55,11 @@ contract Aquaria {
         return aquaria.decimals;
     }
 
-    function totalSupply() public view returns (uint24) {
+    function totalSupply() public view returns (uint56) {
         return aquaria.totalSupply;
     }
 
-    function balanceOf(address _owner) public view returns (uint16) {
+    function balanceOf(address _owner) public view returns (uint40) {
         return aquaria.balanceOf[_owner].fish;
     }
 
@@ -90,4 +94,8 @@ contract Aquaria {
         emit Approval(msg.sender, _spender, _value);
         return true;
     }
+
+    //function mintTokens(address _minter, uint16 _value) public returns (bool success) {
+    //    return true;
+    //}
 }
