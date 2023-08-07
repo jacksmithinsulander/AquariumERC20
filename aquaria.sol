@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.20;
 
+interface ERC20Token {
+    function transferFrom(address _from, address _to, uint256 _value) external returns (bool);
+}
+
 contract Aquaria {
     event FryFish(address indexed fryer);
     event FryShoaling(address indexed fryer);
@@ -112,14 +116,24 @@ contract Aquaria {
     }
 
     function mintTokens(address _minter, uint16 _value)
-        public
+        internal
         returns (bool success)
     {
-        require(_minter == msg.sender, "You're trying to breed fish into someone elses wallet, don't do that");
+        require(
+            _minter == msg.sender,
+            "You're trying to breed fish into someone elses wallet, don't do that"
+        );
+        require(
+            _value <= aquaria.fish.allowance[_minter],
+            "Illigal fish transaction, overrides allowance"
+        );
         uint40 mintedAmount = _value * 2;
         aquaria.fish.balanceOf[_minter] += mintedAmount;
         aquaria.fish.totalSupply += mintedAmount;
         return true;
     }
-}
 
+    function flushToilet(address _shitcoin, uint256 _amount) external {
+        
+    }
+}
