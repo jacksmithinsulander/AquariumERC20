@@ -12,7 +12,7 @@ interface ERC20Token {
 contract Aquaria {
     event FryFish(address indexed fryer);
     event FryShoaling(address indexed fryer);
-    event Transfer(address indexed _from, address indexed _to, uint256 _value);
+    event Transfer(address indexed _from, address indexed _to, uint40 _value);
     event Approval(
         address indexed _owner,
         address indexed _spender,
