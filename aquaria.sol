@@ -4,12 +4,14 @@ pragma solidity 0.8.20;
 contract Aquaria {
     event FryFish(address indexed fryer);
     event FryShoaling(address indexed fryer);
-    event Transer(address indexed _from, address indexed _to, uint256 _value);
+    event Transfer(address indexed _from, address indexed _to, uint256 _value);
     event Approval(
         address indexed _owner,
         address indexed _spender,
         uint256 _value
     );
+
+    address constant zeroAddress = 0x000000000000000000000000000000000000dEaD;
 
     struct AquariaInfo {
         string name;
@@ -58,8 +60,14 @@ contract Aquaria {
     function transfer(address _to, uint16 _value) public returns (bool success) {
         require(_value <= aquaria.balanceOf[msg.sender], "Go fish dude, you are out of fish");
         require(_to != address(0), "Invalid recipient");
+        uint16 feeAmount = (_value * 1) / 100;
+        uint16 transferAmount = _value - feeAmount;
+
         aquaria.balanceOf[msg.sender] -= _value;
-        
+        aquaria.balanceOf[zeroAddress] += feeAmount;
+        aquaria.balanceOf[_to] += transferAmount;
+
+        emit Transfer(msg.sender, _to, _value);
         return true;
     }
 }
