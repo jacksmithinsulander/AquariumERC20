@@ -28,6 +28,7 @@ contract Aquaria {
     struct SubToken {
         string symbol;
         uint56 totalSupply;
+        uint56 circulatingSupply;
         mapping(address => uint40) allowance;
         mapping(address => uint40) balanceOf;
     }
@@ -35,6 +36,7 @@ contract Aquaria {
     struct AquariaInfo {
         string name;
         uint8 decimals;
+        uint56 burnedFish;
         SubToken fish;
         SubToken shoaling;
     }
@@ -46,6 +48,7 @@ contract Aquaria {
         aquaria.decimals = 7;
         aquaria.fish.symbol = "FISH";
         aquaria.fish.totalSupply = convertToDecimal(1);
+        aquaria.fish.circulatingSupply = convertToDecimal(1);
         aquaria.fish.balanceOf[msg.sender] = uint40(convertToDecimal(1));
         aquaria.fish.allowance[msg.sender] = 0;
         aquaria.shoaling.symbol = "SHOALING";
@@ -67,9 +70,38 @@ contract Aquaria {
         return aquaria.fish.totalSupply;
     }
 
-    function balanceOf(address _owner) public view returns (uint40) {
-        return aquaria.fish.balanceOf[_owner];
+    function circulatingSupply() public view returns (uint56) {
+        return aquaria.fish.circulatingSupply;
     }
+
+    function burnedFish() public view returns (uint56) {
+        return aquaria.burnedFish;
+    }
+
+    function universalBalanceOf(address _owner, string memory _token)
+        public
+        view
+        returns (uint40)
+    {
+        if (
+            keccak256(abi.encodePacked(_token)) ==
+            keccak256(abi.encodePacked(aquaria.fish.symbol))
+        ) {
+            return aquaria.fish.balanceOf[_owner];
+        } else if (
+            keccak256(abi.encodePacked(_token)) ==
+            keccak256(abi.encodePacked(aquaria.shoaling.symbol))
+        ) {
+            return aquaria.shoaling.balanceOf[_owner];
+        } else {
+            revert("Invalid fish input. We only work with fish or shoaling here, pal");
+        }
+    }
+
+    function balanceOf(address _owner) public view returns (uint40) {
+        return universalBalanceOf(_owner, aquaria.fish.symbol);
+    }
+
 
     function allowance(address _owner) public view returns (uint40 remaining) {
         return aquaria.fish.allowance[_owner];
@@ -92,11 +124,11 @@ contract Aquaria {
         require(_to != address(0), "Invalid recipient");
         uint16 feeAmount = (_value * 1) / 100;
         uint16 transferAmount = _value - feeAmount;
-
         aquaria.fish.balanceOf[_from] -= _value;
         aquaria.fish.balanceOf[zeroAddress] += feeAmount;
         aquaria.fish.balanceOf[_to] += transferAmount;
-
+        aquaria.fish.circulatingSupply -= feeAmount;
+        aquaria.burnedFish += feeAmount;
         emit Transfer(msg.sender, _to, _value);
         return true;
     }
@@ -109,7 +141,7 @@ contract Aquaria {
         return isSent;
     }
 
-    function approve(address _spender, uint16 _value)
+    function approve(address _spender, uint40 _value)
         public
         returns (bool success)
     {
@@ -119,9 +151,12 @@ contract Aquaria {
         return true;
     }
 
-    function mintTokens(address _minter, uint16 _value)
-        internal
-        returns (bool success)
+    function mintTokens(address _minter, uint40 _value)
+        public
+        returns (
+            //internal
+            bool success
+        )
     {
         require(
             _minter == msg.sender,
@@ -134,19 +169,25 @@ contract Aquaria {
         uint40 mintedAmount = _value * 2;
         aquaria.fish.balanceOf[_minter] += mintedAmount;
         aquaria.fish.totalSupply += mintedAmount;
+        aquaria.fish.circulatingSupply += mintedAmount;
         return true;
     }
 
     function mergeFish(uint40 _value) public returns (bool success) {
-        require(_value % 100 == 0, "Wrong fish to shoaling ratio, noob");
+        require(
+            _value % convertToDecimal(100) == 0,
+            "Wrong fish to shoaling ratio, noob"
+        );
         require(
             _value <= aquaria.fish.allowance[msg.sender],
             "Illigal fish transaction, overrides allowance"
         );
         aquaria.fish.balanceOf[msg.sender] -= _value;
-        aquaria.fish.totalSupply -= _value;
+        aquaria.fish.circulatingSupply(); -= _value;
+        aquaria.burnedFish += _value;
         aquaria.shoaling.balanceOf[msg.sender] += _value / 100;
         aquaria.shoaling.totalSupply += _value / 100;
+        aquaria.shoaling.circulatingSupply += _value 100;
         return true;
     }
 
