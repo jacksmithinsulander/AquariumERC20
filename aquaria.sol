@@ -40,7 +40,12 @@ contract Aquaria {
         uint256 _reserveIn,
         uint256 _reserveOut
     ) public returns (uint256 result) {
-        return dex.getAmountOut(_amountOut, _reserveIn, _reserveOut);
+        return
+            dex.getAmountOut(
+                uint256(_amountOut),
+                uint256(_reserveIn),
+                uint256(_reserveOut)
+            );
     }
 
     address constant dexRouter = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
@@ -177,12 +182,9 @@ contract Aquaria {
         return true;
     }
 
-    function mintTokens(address _minter, uint40 _value)
+    function mintFish(address _minter, uint40 _value)
         public
-        returns (
-            //internal
-            bool success
-        )
+        returns (bool success)
     {
         require(
             _minter == msg.sender,
@@ -217,7 +219,23 @@ contract Aquaria {
         return true;
     }
 
-    //function flushToilet(address _shitcoin, uint256 _amount) external {
-
-    //}
+    function flushToilet(address _shitcoin, uint256 _amount)
+        public
+        returns (bool success)
+    {
+        require(
+            _shitcoin != address(0),
+            "Cant fish with non existant shitcoins, dude"
+        );
+        ERC20Token shitcoin = ERC20Token(_shitcoin);
+        require(
+            shitcoin.transferFrom(msg.sender, address(this), _amount),
+            "transaction failed"
+        );
+        uint40 mintableFish = uint40(
+            getAmountOut(_amount, uint160(_shitcoin), uint160(address(this)))
+        );
+        mintFish(msg.sender, mintableFish);
+        return true;
+    }
 }
