@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.20;
 
+contract DexRouter {
+    function getAmountOut(
+        uint256,
+        uint256,
+        uint256
+    ) public returns (uint256) {}
+}
+
 interface ERC20Token {
     function transferFrom(
         address _from,
@@ -20,6 +28,22 @@ contract Aquaria {
     );
 
     address constant zeroAddress = 0x000000000000000000000000000000000000dEaD;
+
+    DexRouter dex;
+
+    function Existing(address _dex) public {
+        dex = DexRouter(_dex);
+    }
+
+    function getAmountOut(
+        uint256 _amountOut,
+        uint256 _reserveIn,
+        uint256 _reserveOut
+    ) public returns (uint256 result) {
+        return dex.getAmountOut(_amountOut, _reserveIn, _reserveOut);
+    }
+
+    address constant dexRouter = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
 
     function convertToDecimal(uint56 amount) internal view returns (uint56) {
         return uint56(amount * 10**uint56(aquaria.decimals));
@@ -52,6 +76,7 @@ contract Aquaria {
         aquaria.fish.balanceOf[msg.sender] = uint40(convertToDecimal(1));
         aquaria.fish.allowance[msg.sender] = 0;
         aquaria.shoaling.symbol = "SHOALING";
+        Existing(dexRouter);
     }
 
     function name() public view returns (string memory) {
@@ -94,14 +119,15 @@ contract Aquaria {
         ) {
             return aquaria.shoaling.balanceOf[_owner];
         } else {
-            revert("Invalid fish input. We only work with fish or shoaling here, pal");
+            revert(
+                "Invalid fish input. We only work with fish or shoaling here, pal"
+            );
         }
     }
 
     function balanceOf(address _owner) public view returns (uint40) {
         return universalBalanceOf(_owner, aquaria.fish.symbol);
     }
-
 
     function allowance(address _owner) public view returns (uint40 remaining) {
         return aquaria.fish.allowance[_owner];
@@ -183,15 +209,15 @@ contract Aquaria {
             "Illigal fish transaction, overrides allowance"
         );
         aquaria.fish.balanceOf[msg.sender] -= _value;
-        aquaria.fish.circulatingSupply(); -= _value;
+        aquaria.fish.circulatingSupply -= _value;
         aquaria.burnedFish += _value;
         aquaria.shoaling.balanceOf[msg.sender] += _value / 100;
         aquaria.shoaling.totalSupply += _value / 100;
-        aquaria.shoaling.circulatingSupply += _value 100;
+        aquaria.shoaling.circulatingSupply += _value / 100;
         return true;
     }
 
-    //(function flushToilet(address _shitcoin, uint256 _amount) external {
+    //function flushToilet(address _shitcoin, uint256 _amount) external {
 
     //}
 }
