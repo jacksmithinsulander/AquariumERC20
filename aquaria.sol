@@ -7,6 +7,21 @@ contract DexRouter {
         uint256,
         uint256
     ) public returns (uint256) {}
+
+    function addLiquidity(
+        address,
+        address,
+        uint256,
+        uint256,
+        uint256,
+        uint256,
+        address,
+        uint256
+    ) public returns (bool) {}
+}
+
+contract DexFactory {
+    function createPair(address, address) public returns (address) {}
 }
 
 interface ERC20Token {
@@ -30,9 +45,11 @@ contract Aquaria {
     address constant zeroAddress = 0x000000000000000000000000000000000000dEaD;
 
     DexRouter dex;
+    DexFactory factory;
 
-    function Existing(address _dex) public {
+    function Existing(address _dex, address _factory) public {
         dex = DexRouter(_dex);
+        factory = DexFactory(_factory);
     }
 
     function getAmountOut(
@@ -48,7 +65,38 @@ contract Aquaria {
             );
     }
 
+    function addLiquidity(
+        address _tokenA,
+        address _tokenB,
+        uint256 _amountADesired,
+        uint256 _amountBDesired,
+        uint256 _amountAMin,
+        uint256 _amountBMin,
+        address _to,
+        uint256 _deadline
+    ) public returns (bool success) {
+        return
+            dex.addLiquidity(
+                _tokenA,
+                _tokenB,
+                _amountADesired,
+                _amountBDesired,
+                _amountAMin,
+                _amountBMin,
+                _to,
+                _deadline
+            );
+    }
+
+    function createPair(address _tokenA, address _tokenB)
+        public
+        returns (address LP)
+    {
+        return factory.createPair(_tokenA, _tokenB);
+    }
+
     address constant dexRouter = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+    address constant dexFactory = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
 
     function convertToDecimal(uint56 amount) internal view returns (uint56) {
         return uint56(amount * 10**uint56(aquaria.decimals));
@@ -81,7 +129,7 @@ contract Aquaria {
         aquaria.fish.balanceOf[msg.sender] = uint40(convertToDecimal(1));
         aquaria.fish.allowance[msg.sender] = 0;
         aquaria.shoaling.symbol = "SHOALING";
-        Existing(dexRouter);
+        Existing(dexRouter, dexFactory);
     }
 
     function name() public view returns (string memory) {
